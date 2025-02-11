@@ -1,0 +1,21 @@
+League concluded.
+Model qwen2.5:
+{'wins': 2, 'loses': 3, 'draws': 0, 'errors': 49, 'forfeits': 6, 'other_forfeits': 7, 'time': 410.84872174263}
+Model qwen:
+{'wins': 0, 'loses': 0, 'draws': 0, 'errors': 109, 'forfeits': 15, 'other_forfeits': 3, 'time': 182.4952163696289}
+Model gemma:
+{'wins': 0, 'loses': 0, 'draws': 0, 'errors': 138, 'forfeits': 14, 'other_forfeits': 4, 'time': 630.9108054637909}
+Model llama3:
+{'wins': 0, 'loses': 4, 'draws': 0, 'errors': 45, 'forfeits': 4, 'other_forfeits': 10, 'time': 290.5747151374817}
+Model llama3.1:
+{'wins': 2, 'loses': 2, 'draws': 0, 'errors': 56, 'forfeits': 4, 'other_forfeits': 10, 'time': 28847.136538505554}
+Model phi4:
+{'wins': 4, 'loses': 3, 'draws': 0, 'errors': 17, 'forfeits': 0, 'other_forfeits': 11, 'time': 3772.6137385368347}
+Model qwen:
+{'wins': 0, 'loses': 1, 'draws': 0, 'errors': 109, 'forfeits': 12, 'other_forfeits': 5, 'time': 200.22440195083618}
+Model mistral:
+{'wins': 4, 'loses': 2, 'draws': 0, 'errors': 62, 'forfeits': 5, 'other_forfeits': 7, 'time': 476.80208015441895}
+Model llama3.2:
+{'wins': 0, 'loses': 4, 'draws': 0, 'errors': 105, 'forfeits': 11, 'other_forfeits': 3, 'time': 250.01665544509888}
+Model deepseek-r1:
+{'wins': 7, 'loses': 0, 'draws': 0, 'errors': 13, 'forfeits': 0, 'other_forfeits': 11, 'time': 5946.974188327789}

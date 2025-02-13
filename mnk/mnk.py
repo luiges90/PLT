@@ -53,11 +53,11 @@ class Printer:
     def __init__(self, prefix):
         formatted_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.file_path = f'{prefix}_{formatted_time}.log'
-        self.file = open(self.file_path, 'w')
+        self.file = open(self.file_path, 'w', encoding='utf-8')
 
     def print(self, message, end='\n', flush=False):
         print(message, end=end, flush=flush)
-        self.file.write(message)
+        self.file.write(f'{message}{end}')
         self.file.flush()
 
     def __del__(self):
@@ -169,7 +169,7 @@ def run_single_game(models, printer):
     return stats
 
 # main
-printer = Printer('mnk')
+printer = Printer('output/mnk')
 
 models = ['qwen2.5', 'qwen', 'gemma', 'llama3', 'llama3.1', 'phi4', 'qwen', 'mistral', 'llama3.2', 'deepseek-r1']
 stats = [{

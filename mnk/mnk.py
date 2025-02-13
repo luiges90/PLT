@@ -1,6 +1,7 @@
 from ollama import Client
 import re
 import time
+from datetime import datetime
 
 class TicTacToe:
     def __init__(self):
@@ -49,10 +50,20 @@ class TicTacToe:
         return all(self.board[row][col] != '.' for row in range(3) for col in range(3))
 
 class Printer:
-    pass
-    # This class print messages to both console and file
+    def __init__(self, prefix):
+        formatted_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        self.file_path = f'{prefix}_{formatted_time}.log'
+        self.file = open(self.file_path, 'w')
 
-def run_single_game(models):
+    def print(self, message, end='\n', flush=False):
+        print(message, end=end, flush=flush)
+        self.file.write(message)
+        self.file.flush()
+
+    def __del__(self):
+        self.file.close()
+
+def run_single_game(models, printer):
     client1 = Client(
       host='http://localhost:11434',
     )
@@ -83,7 +94,7 @@ def run_single_game(models):
             other = 1
 
         if retries > 5:
-            print(f"System: Model {player} {models[player]} is unable to make a valid move after 5 tries. Aborting.")
+            printer.print(f"System: Model {player} {models[player]} is unable to make a valid move after 5 tries. Aborting.")
             stats[other]["other_forfeits"] += 1
             stats[player]["forfeits"] += 1
             break
@@ -94,7 +105,7 @@ def run_single_game(models):
         message += 'Place your move as row and column index, 0-based. e.g. Top-right corner is 0,2'
 
         # Ask LLM
-        print(f"System: Asking Model {player} {models[player]}: \n<prompt>\n{message}\n</prompt>\n")
+        printer.print(f"System: Asking Model {player} {models[player]}: \n<prompt>\n{message}\n</prompt>\n")
         time_start = time.time()
         stream = clients[player].chat(model=models[player], stream=True, messages=[
             {
@@ -104,28 +115,28 @@ def run_single_game(models):
         ])
 
         # Receive answer from LLM
-        print('System: receiving answer...\n<answer>\n')
+        printer.print('System: receiving answer...\n<answer>\n')
         answer = ''
         for chunk in stream:
             answer_chunk = chunk['message']['content']
             answer += answer_chunk
-            print(answer_chunk, end='', flush=True)
-        print('\n</answer>\n')
+            printer.print(answer_chunk, end='', flush=True)
+        printer.print('\n</answer>\n')
         time_end = time.time()
         stats[player]["time"] += time_end - time_start
-        print('System: Time taken: ', time_end - time_start)
+        printer.print(f'System: Time taken: {time_end - time_start}')
 
         # Interpret answer
         matches = re.findall(r'(\d)\s*,\s*(\d)', answer)
         if not matches:
-            print('System: Unable to interpret move from the answer.')
+            printer.print('System: Unable to interpret move from the answer.')
             message = f'Unable to interpret your move from your answer. Try again.\n'
             stats[player]["errors"] += 1
             continue
         row, col = matches[-1]
         row = int(row)
         col = int(col)
-        print(f'System: interpreted answer as move ({row}, {col})')
+        printer.print(f'System: interpreted answer as move ({row}, {col})')
 
         # Make move
         message, valid, won = game.make_move(row, col)
@@ -151,13 +162,15 @@ def run_single_game(models):
             player = 0
             message += intro_message + 'You play as X.\n'
 
-    print('System: Game ended.')
-    print(message)
-    print(game.print_board())
+    printer.print('System: Game ended.')
+    printer.print(message)
+    printer.print(game.print_board())
 
     return stats
 
 # main
+printer = Printer('mnk')
+
 models = ['qwen2.5', 'qwen', 'gemma', 'llama3', 'llama3.1', 'phi4', 'qwen', 'mistral', 'llama3.2', 'deepseek-r1']
 stats = [{
     "wins": 0, "loses": 0, "draws": 0, "errors": 0, "forfeits": 0, "other_forfeits": 0, "time": 0,
@@ -167,17 +180,17 @@ for c in range(0, 1):
         for j in range(0, len(models)):
             if i == j:
                 continue
-            print(f"League System: Starting game {models[i]} vs. {models[j]}")
-            round_stat = run_single_game([models[i], models[j]])
+            printer.print(f"League System: Starting game {models[i]} vs. {models[j]}")
+            round_stat = run_single_game([models[i], models[j]], printer)
 
             stats[i] = {k: stats[i][k] + round_stat[0][k] for k in stats[i]}
             stats[j] = {k: stats[j][k] + round_stat[1][k] for k in stats[j]}
 
-            print("Current tally:")
-            print(f"Model {models[i]}:\n{stats[i]}")
-            print(f"Model {models[j]}:\n{stats[j]}")
+            printer.print("Current tally:")
+            printer.print(f"Model {models[i]}:\n{stats[i]}")
+            printer.print(f"Model {models[j]}:\n{stats[j]}")
 
-print("****************************************************************")
-print("League concluded.")
+printer.print("****************************************************************")
+printer.print("League concluded.")
 for i in range(0, len(models)):
-    print(f"Model {models[i]}:\n{stats[i]}")
+    printer.print(f"Model {models[i]}:\n{stats[i]}")

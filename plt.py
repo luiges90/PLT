@@ -1,9 +1,10 @@
-from ollama import Client
-import re
+from ollama import Clien
 import time
 from datetime import datetime
 
 from mnk.mnk import MNKGame
+from shared import MoveResponse
+
 
 class Printer:
     def __init__(self, prefix):
@@ -19,7 +20,9 @@ class Printer:
     def __del__(self):
         self.file.close()
 
-def run_single_game(game, models, printer):
+def run_single_game(models, printer):
+    game = MNKGame()
+
     client1 = Client(
       host='http://localhost:11434',
     )
@@ -28,12 +31,7 @@ def run_single_game(game, models, printer):
     )
     clients = [client1, client2]
 
-    # Game loop
-    game_over = False
-
     # Setup
-    intro_message = 'Here is a Tic Tac Toe game. '
-
     retries = 0
     player = 0
     stats = [{
@@ -41,8 +39,7 @@ def run_single_game(game, models, printer):
     }, {
         "wins": 0, "loses": 0, "draws": 0, "errors": 0, "forfeits": 0, "other_forfeits": 0, "time": 0,
     }]
-    message = intro_message + 'You play as X.\n'
-    while not game_over:
+    while True:
         if player == 1:
             other = 0
         else:
@@ -56,8 +53,7 @@ def run_single_game(game, models, printer):
         retries += 1
 
         # Compose message
-        message += game.print_board()
-        message += 'Place your move as row and column index, 0-based. e.g. Top-right corner is 0,2'
+        message = game.make_message()
 
         # Ask LLM
         printer.print(f"System: Asking Model {player} {models[player]}: \n<prompt>\n{message}\n</prompt>\n")
@@ -81,29 +77,18 @@ def run_single_game(game, models, printer):
         stats[player]["time"] += time_end - time_start
         printer.print(f'System: Time taken: {time_end - time_start}')
 
-        # Interpret answer
-        matches = re.findall(r'(\d)\s*,\s*(\d)', answer)
-        if not matches:
-            printer.print('System: Unable to interpret move from the answer.')
-            message = f'Unable to interpret your move from your answer. Try again.\n'
-            stats[player]["errors"] += 1
-            continue
-        row, col = matches[-1]
-        row = int(row)
-        col = int(col)
-        printer.print(f'System: interpreted answer as move ({row}, {col})')
+        # Resolve answer
+        message, status = game.make_move(answer)
+        printer.print(message)
 
-        # Make move
-        message, valid, won = game.make_move(row, col)
-        if not valid:
+        if status == MoveResponse.INVALID:
             stats[player]["errors"] += 1
             continue
-        if won:
+        if status == MoveResponse.WIN:
             stats[player]["wins"] += 1
             stats[other]["loses"] += 1
             break
-        if game.is_full():
-            message = "The game is a draw!" + '\n'
+        if status == MoveResponse.DRAW:
             stats[player]["draws"] += 1
             stats[other]["draws"] += 1
             break
@@ -112,19 +97,14 @@ def run_single_game(game, models, printer):
         retries = 0
         if player == 0:
             player = 1
-            message += intro_message + 'You play as O.\n'
         else:
             player = 0
-            message += intro_message + 'You play as X.\n'
 
     printer.print('System: Game ended.')
-    printer.print(message)
-    printer.print(game.print_board())
 
     return stats
 
-# main
-game = MNKGame()
+# mai
 printer = Printer('output/mnk')
 
 models = ['qwen2.5', 'llama3.1', 'phi4', 'mistral', 'deepseek-r1']
@@ -137,7 +117,7 @@ for c in range(0, 1):
             if i == j:
                 continue
             printer.print(f"League System: Starting game {models[i]} vs. {models[j]}")
-            round_stat = run_single_game(game, [models[i], models[j]], printer)
+            round_stat = run_single_game([models[i], models[j]], printer)
 
             stats[i] = {k: stats[i][k] + round_stat[0][k] for k in stats[i]}
             stats[j] = {k: stats[j][k] + round_stat[1][k] for k in stats[j]}

@@ -1,7 +1,17 @@
+import re
+
+from shared import MoveResponse
+
 class MNKGame:
     def __init__(self):
         self.board = [['.' for _ in range(3)] for _ in range(3)]
         self.current_player = 'X'
+
+    def make_message(self):
+        message = f'Here is a Tic Tac Toe game. You play as {self.current_player}'
+        message += self.print_board()
+        message += 'Place your move as row and column index, 0-based. e.g. Top-right corner is 0,2';
+        return message
 
     def print_board(self):
         s = ''
@@ -9,23 +19,36 @@ class MNKGame:
             s += ''.join(row) + '\n'
         return s
 
-    def make_move(self, row, col):
-        s = ''
+    def make_move(self, answer):
+        matches = re.findall(r'(\d)\s*,\s*(\d)', answer)
+        if not matches:
+            message = f'Unable to interpret your move from your answer. Try again.\n'
+            return message, MoveResponse.INVALID
+
+        row, col = matches[-1]
+        row = int(row)
+        col = int(col)
+        message = f'System: interpreted answer as move ({row}, {col})'
 
         if row > 2 or col > 2:
-            s += f'Your move {row},{col} is invalid because it is out of bounds. Try again.\n'
-            return s, False, False
+            message += f'Your move {row},{col} is invalid because it is out of bounds. Try again.\n'
+            return message, MoveResponse.INVALID
 
         if self.board[row][col] == '.':
             self.board[row][col] = self.current_player
             if self.check_winner(row, col):
-                s += f"Player {self.current_player} wins!\n"
-                return s, True, True
+                message += f"Player {self.current_player} wins!\n"
+                return message, MoveResponse.WIN
             self.current_player = 'O' if self.current_player == 'X' else 'X'
         else:
-            s += f'Your move {row},{col} is invalid because it is occupied. Try again.\n'
-            return s, False, False
-        return s, True, False
+            message += f'Your move {row},{col} is invalid because it is occupied. Try again.\n'
+            return message, MoveResponse.INVALID
+
+        if self.is_full():
+            message += f"The game is a draw!" + '\n'
+            return message, MoveResponse.DRAW
+
+        return message, MoveResponse.VALID
 
     def check_winner(self, row, col):
         # Check row

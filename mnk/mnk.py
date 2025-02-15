@@ -8,9 +8,9 @@ class MNKGame:
         self.current_player = 'X'
 
     def make_message(self):
-        message = f'Here is a Tic Tac Toe game. You play as {self.current_player}'
+        message = f'Here is a Tic Tac Toe game. You play as {self.current_player}\n'
         message += self.print_board()
-        message += 'Place your move as row and column index, 0-based. e.g. Top-right corner is 0,2';
+        message += 'Place your move as row and column index, 0-based. e.g. Top-right corner is 0,2\n'
         return message
 
     def print_board(self):

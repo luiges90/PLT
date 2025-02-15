@@ -66,7 +66,7 @@ def run_single_game(models, printer):
         ])
 
         # Receive answer from LLM
-        printer.print('System: receiving answer...\n<answer>\n')
+        printer.print('System: receiving answer...\n<answer>')
         answer = ''
         for chunk in stream:
             answer_chunk = chunk['message']['content']

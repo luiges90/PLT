@@ -79,7 +79,8 @@ def run_single_game(models, printer):
         printer.print(f'System: Time taken: {time_end - time_start}')
 
         # Resolve answer
-        message, status = game.make_move(answer)
+        sys_message, message, status = game.make_move(answer)
+        printer.print(sys_message)
         printer.print(message)
 
         if status == MoveResponse.INVALID:

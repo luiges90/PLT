@@ -23,32 +23,32 @@ class MNKGame:
         matches = re.findall(r'(\d)\s*,\s*(\d)', answer)
         if not matches:
             message = f'Unable to interpret your move from your answer. Try again.\n'
-            return message, MoveResponse.INVALID
+            return '', message, MoveResponse.INVALID
 
         row, col = matches[-1]
         row = int(row)
         col = int(col)
-        message = f'System: interpreted answer as move ({row}, {col})\n'
+        sys_message = f'System: interpreted answer as move ({row}, {col})\n'
 
         if row > 2 or col > 2:
-            message += f'Your move {row},{col} is invalid because it is out of bounds. Try again.\n'
-            return message, MoveResponse.INVALID
+            message = f'Your move {row},{col} is invalid because it is out of bounds. Try again.\n'
+            return sys_message, message, MoveResponse.INVALID
 
         if self.board[row][col] == '.':
             self.board[row][col] = self.current_player
             if self.check_winner(row, col):
-                message += f"Player {self.current_player} wins!\n"
-                return message, MoveResponse.WIN
+                message = f"Player {self.current_player} wins!\n"
+                return sys_message, message, MoveResponse.WIN
             self.current_player = 'O' if self.current_player == 'X' else 'X'
         else:
-            message += f'Your move {row},{col} is invalid because it is occupied. Try again.\n'
-            return message, MoveResponse.INVALID
+            message = f'Your move {row},{col} is invalid because it is occupied. Try again.\n'
+            return sys_message, message, MoveResponse.INVALID
 
         if self.is_full():
-            message += f"The game is a draw!" + '\n'
-            return message, MoveResponse.DRAW
+            message = f"The game is a draw!" + '\n'
+            return sys_message, message, MoveResponse.DRAW
 
-        return message, MoveResponse.VALID
+        return sys_message, '', MoveResponse.VALID
 
     def check_winner(self, row, col):
         # Check row

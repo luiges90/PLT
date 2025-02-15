@@ -28,7 +28,7 @@ class MNKGame:
         row, col = matches[-1]
         row = int(row)
         col = int(col)
-        sys_message = f'System: interpreted answer as move ({row}, {col})\n'
+        sys_message = f'interpreted answer as move ({row}, {col})\n'
 
         if row > 2 or col > 2:
             message = f'Your move {row},{col} is invalid because it is out of bounds. Try again.\n'

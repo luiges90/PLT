@@ -80,8 +80,7 @@ def run_single_game(models, printer):
 
         # Resolve answer
         sys_message, message, status = game.make_move(answer)
-        printer.print(sys_message)
-        printer.print(message)
+        printer.print('System: ' + sys_message)
 
         if status == MoveResponse.INVALID:
             stats[player]["errors"] += 1
@@ -103,6 +102,7 @@ def run_single_game(models, printer):
             player = 0
 
     printer.print('System: Game ended.')
+    printer.print(message)
 
     return stats
 

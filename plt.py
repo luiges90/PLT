@@ -39,6 +39,7 @@ def run_single_game(models, printer):
     }, {
         "wins": 0, "loses": 0, "draws": 0, "errors": 0, "forfeits": 0, "other_forfeits": 0, "time": 0,
     }]
+    message = ''
     while True:
         if player == 1:
             other = 0
@@ -53,7 +54,7 @@ def run_single_game(models, printer):
         retries += 1
 
         # Compose message
-        message = game.make_message()
+        message += game.make_message()
 
         # Ask LLM
         printer.print(f"System: Asking Model {player} {models[player]}: \n<prompt>\n{message}\n</prompt>\n")

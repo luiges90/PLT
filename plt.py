@@ -1,4 +1,4 @@
-from ollama import Clien
+from ollama import Client
 import time
 from datetime import datetime
 

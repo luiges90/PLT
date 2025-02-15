@@ -127,7 +127,7 @@ def run_single_game(game, models, printer):
 game = MNKGame()
 printer = Printer('output/mnk')
 
-models = ['qwen2.5', 'qwen', 'gemma', 'llama3', 'llama3.1', 'phi4', 'qwen', 'mistral', 'llama3.2', 'deepseek-r1']
+models = ['qwen2.5', 'llama3.1', 'phi4', 'mistral', 'deepseek-r1']
 stats = [{
     "wins": 0, "loses": 0, "draws": 0, "errors": 0, "forfeits": 0, "other_forfeits": 0, "time": 0,
 }] * len(models)
